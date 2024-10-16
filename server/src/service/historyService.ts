@@ -1,17 +1,29 @@
-// TODO: Define a City class with name and id properties
+import fs from 'fs/promises';
 
-// TODO: Complete the HistoryService class
 class HistoryService {
-  // TODO: Define a read method that reads from the searchHistory.json file
-  // private async read() {}
-  // TODO: Define a write method that writes the updated cities array to the searchHistory.json file
-  // private async write(cities: City[]) {}
-  // TODO: Define a getCities method that reads the cities from the searchHistory.json file and returns them as an array of City objects
-  // async getCities() {}
-  // TODO Define an addCity method that adds a city to the searchHistory.json file
-  // async addCity(city: string) {}
-  // * BONUS TODO: Define a removeCity method that removes a city from the searchHistory.json file
-  // async removeCity(id: string) {}
+  private filePath = __dirname + '/searchHistory.json'; // Using __dirname without 'path'
+
+  async getSearchHistory(): Promise<any[]> {
+    try {
+      const data = await fs.readFile(this.filePath, 'utf-8');
+      return JSON.parse(data);
+    } catch (error) {
+      console.error('Error reading search history:', error);
+      return [];
+    }
+  }
+
+  async saveCity(cityName: string): Promise<void> {
+    const history = await this.getSearchHistory();
+    history.push({ id: Date.now(), cityName });
+    await fs.writeFile(this.filePath, JSON.stringify(history, null, 2));
+  }
+
+  async deleteCity(id: string): Promise<void> {
+    let history = await this.getSearchHistory();
+    history = history.filter(city => city.id !== parseInt(id));
+    await fs.writeFile(this.filePath, JSON.stringify(history, null, 2));
+  }
 }
 
-export default new HistoryService();
+export default HistoryService;
